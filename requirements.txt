@@ -1,0 +1,5 @@
+pafy
+pydub
+python-telegram-bot
+bs4
+requests
