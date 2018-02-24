@@ -26,6 +26,10 @@ def check_url_re(url):
 	regex = re.compile('^(?:http|ftp)s?://', re.IGNORECASE)
 	return regex.match(url)
 
+def is_short_url(url):
+	regex = re.compile('https?:\/\/youtu.be\/(.+)')
+	return regex.match(url)
+
 def get_url(text):
 	url = get_url_string(text)
 	
@@ -35,6 +39,11 @@ def get_url(text):
 	return url
 
 def get_vId(url):
+	short_url = is_short_url(url)
+
+	if short_url:
+		return short_url.group().split("/")[-1]
+
 	regex = r"\?v=(.+)"
 	matches = re.finditer(regex, url)
 	
