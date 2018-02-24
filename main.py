@@ -46,6 +46,12 @@ def download(bot, update):
 		sys.stdout.write("New song request client username %s\n" % update.message.chat.username)
 		audio_info = downloader.download_audio(vId, url)
 		bot.delete_message(chat_id=update.message.chat_id, message_id=sent_msg.message_id)
+
+		try:
+			bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+		except:
+			pass
+
 		if not audio_info["status"]:
 			msg = "Something went wrong: %s" % audio_info["error"]
 			return bot.send_message(chat_id=update.message.chat_id, text=msg)
