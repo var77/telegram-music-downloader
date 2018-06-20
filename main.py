@@ -30,71 +30,86 @@ dispatcher = updater.dispatcher
 @run_async
 def download(bot, update):
 	try:
-		text = update.callback_query.data
-		update = update.callback_query
-	except:
-		text = update.message.text
-
-	if not helpers.check(text):
-		bot_msg = bot.send_message(chat_id=update.message.chat_id, text=usage_msg)
-		time.sleep(20)
-		bot.delete_message(chat_id=update.message.chat_id, message_id=bot_msg.message_id)
-	else:
-		sent_msg = bot.send_message(chat_id=update.message.chat_id, text=dwn_msg)
-		url = helpers.get_url(text)
-		vId = helpers.get_vId(url)
-		sys.stdout.write("New song request client username %s\n" % update.message.chat.username)
-		audio_info = downloader.download_audio(vId, url)
-		bot.delete_message(chat_id=update.message.chat_id, message_id=sent_msg.message_id)
-
 		try:
-			bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+			text = update.callback_query.data
+			update = update.callback_query
 		except:
-			pass
+			text = update.message.text
 
-		if not audio_info["status"]:
-			msg = "Something went wrong: %s" % audio_info["error"]
-			return bot.send_message(chat_id=update.message.chat_id, text=msg)
+		if not helpers.check(text):
+			bot_msg = bot.send_message(chat_id=update.message.chat_id, text=usage_msg)
+			time.sleep(20)
+			bot.delete_message(chat_id=update.message.chat_id, message_id=bot_msg.message_id)
+		else:
+			sent_msg = bot.send_message(chat_id=update.message.chat_id, text=dwn_msg)
+			url = helpers.get_url(text)
+			vId = helpers.get_vId(url)
+			sys.stdout.write("New song request client username %s\n" % update.message.chat.username)
+			audio_info = downloader.download_audio(vId, url)
+			bot.delete_message(chat_id=update.message.chat_id, message_id=sent_msg.message_id)
 
-		audio = open(audio_info["path"], 'rb')
-		bot.send_audio(chat_id=update.message.chat_id, audio=audio, duration=audio_info["duration"], title=audio_info["title"], timeout=999)
+			try:
+				bot.delete_message(chat_id=update.message.chat_id, message_id=update.message.message_id)
+			except:
+				pass
+
+			if not audio_info["status"]:
+				msg = "Something went wrong: %s" % audio_info["error"]
+				return bot.send_message(chat_id=update.message.chat_id, text=msg)
+
+			audio = open(audio_info["path"], 'rb')
+			bot.send_audio(chat_id=update.message.chat_id, audio=audio, duration=audio_info["duration"], title=audio_info["title"], timeout=999)
+	except:
+		pass
 
 
 @run_async
 def search(bot, update):
-	text = update.message.text
-	query = helpers.get_query(text)
-	if not query:
-		msg = "Use: %s" % srch_msg
-		return bot.send_message(chat_id=update.callback_query.message.chat_id, text=msg)
+	try:
+		text = update.message.text
+		query = helpers.get_query(text)
+		if not query:
+			msg = "Use: %s" % srch_msg
+			return bot.send_message(chat_id=update.callback_query.message.chat_id, text=msg)
 
-	results = helpers.search_songs(query)
-	text = ""
-	for res in results:
-		text += "%s - %s\n" % (res["title"], helpers.youtube_url % res["url"])
+		results = helpers.search_songs(query)
+		text = ""
+		for res in results:
+			text += "%s - %s\n" % (res["title"], helpers.youtube_url % res["url"])
 
-	button_list = list(map(lambda x: InlineKeyboardButton(x["title"], callback_data=x["url"]), results))
-	reply_markup = InlineKeyboardMarkup(helpers.build_menu(button_list, n_cols=3))
-	bot.send_message(chat_id=update.message.chat_id, text=text, reply_markup=reply_markup)
+		button_list = list(map(lambda x: InlineKeyboardButton(x["title"], callback_data=x["url"]), results))
+		reply_markup = InlineKeyboardMarkup(helpers.build_menu(button_list, n_cols=3))
+		bot.send_message(chat_id=update.message.chat_id, text=text, reply_markup=reply_markup)
+	except:
+		pass
 
 
 @run_async
 def button(bot, update):
-	data = update.callback_query.data
-	update.callback_query.data = "/d %s" % (helpers.youtube_url % data)
-	download(bot, update)
+	try:
+		data = update.callback_query.data
+		update.callback_query.data = "/d %s" % (helpers.youtube_url % data)
+		download(bot, update)
+	except:
+		pass
 
 
 @run_async
 def echo(bot, update):
-	bot_msg = bot.send_message(chat_id=update.message.chat_id, text=usage_msg)
-	time.sleep(20)
-	bot.delete_message(chat_id=update.message.chat_id, message_id=bot_msg.message_id)
+	try:
+		bot_msg = bot.send_message(chat_id=update.message.chat_id, text=usage_msg)
+		time.sleep(20)
+		bot.delete_message(chat_id=update.message.chat_id, message_id=bot_msg.message_id)
+	except:
+		pass
 
 @run_async
 def start(bot, update):
-	msg = start_msg % (update.message.chat.first_name, usage_msg)
-	bot.send_message(chat_id=update.message.chat_id, text=msg)
+	try:
+		msg = start_msg % (update.message.chat.first_name, usage_msg)
+		bot.send_message(chat_id=update.message.chat_id, text=msg)
+	except:
+		pass
 
 
 download_handler = CommandHandler("d", download)
